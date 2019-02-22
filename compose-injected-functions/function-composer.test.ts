@@ -4,7 +4,6 @@ import { IDInjectorFactory } from '../id-injector/id-injector';
 
 describe('compose function', () => {
   test('compose without context functions', () => {
-    debugger;
     const functions: ContextComposerFunction[] = [];
     const logic = jest.fn(function() {
       return this;
@@ -54,9 +53,7 @@ describe('compose function', () => {
     const logic = jest.fn(function() {
       return this;
     });
-    debugger;
     const composed = functionComposer(logic, selfinjected, functions);
-    debugger;
     const result = composed.apply('teste', [1, 2, 3]);
     expect(result.self).toEqual('teste');
     expect(logic.mock.calls[0]).toEqual([1, 2, 3]);
@@ -78,9 +75,7 @@ describe('compose function', () => {
     const logic = jest.fn(function() {
       return this;
     });
-    debugger;
     const composed = functionComposer(logic, selfinjected, functions);
-    debugger;
     const result = composed.apply('teste', [1, 2, 3]);
     expect(result.self).toEqual('teste');
     expect(logic.mock.calls[0]).toEqual([1, 2, 3]);

@@ -23,11 +23,9 @@ export function functionComposer(
   const contextChain = [startContext, ...contextFunctions];
   let ctx = {};
   const contextFunc = contextChain.reduce((prev, curr) => {
-    debugger;
     return (ctx: {}, ...args: unknown[]) => prev(curr(ctx, args), ctx, args);
   });
   return contextFunc(function(ctx: {}, ...args: unknown[]) {
-    debugger;
     return logic.apply(ctx, args);
   });
 }

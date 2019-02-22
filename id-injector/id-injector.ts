@@ -21,14 +21,11 @@ export interface IDInjectorProps {
 export function IDInjectorFactory<T = unknown>(
   props: IDInjectorProps = { idGenerator: uuid.v4 }
 ) {
-  debugger;
   return (cb: IDInjected<T>): IDInjector<T> => {
     return (ctx: IDContextCandidate<T>, ...args: unknown[]) => {
-      debugger;
       if (!ctx.hasOwnProperty('id')) {
         ctx.id = props.idGenerator();
       }
-      debugger;
       return cb(ctx as IDContext<T>, ...args);
     };
   };
