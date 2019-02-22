@@ -45,8 +45,8 @@ describe('action ', () => {
   test('check global lobx context', () => {
     const lobxContext = lobxFactory();
     const fn = jest.fn();
-    const original = lobxContext.lobx.actionHandler;
-    lobxContext.lobx.actionHandler = (function(my: any, fn2: IActionFactory) {
+    const original = lobxContext.lobx.action;
+    lobxContext.lobx.action = (function(my: any, fn2: IActionFactory) {
       fn(this, my, fn2);
       return original.apply(this, [my, fn2]);
     } as unknown) as IActionFactory;

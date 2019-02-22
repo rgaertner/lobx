@@ -1,11 +1,11 @@
-import { IComputed } from './i-computed';
+import { functionComposer } from './compose-injected-functions/function-composer';
 import { IActionFactory } from './i-action';
+import { IComputed } from './i-computed';
+import { IDInjected, IDInjectorFactory } from './id-injector/id-injector';
 import {
   SelfInjectedAction,
-  SelfInjector
+  SelfInjectorFactory
 } from './self-injector/self-injector';
-import { IDInjectorFactory, IDInjected } from './id-injector/id-injector';
-import * as uuid from 'uuid';
 
 export interface LobxConfig {
   readonly selfInjector?: SelfInjectedAction;
@@ -21,22 +21,27 @@ export class Lobx {
   public readonly actionInjectorList: Injector[];
   public readonly computedInjectorList: Injector[];
 
-  public static buildInjectors(lst: Injector[]) {
-    return function(...args: any[]) {
-      let ret: unknown;
-      const ctx = {};
-      for (let i = 0; i < lst.length; ++i) {
-        ret = lst[i](ctx, args);
-      }
-      return ret;
-    };
+  public action(logic: (...args: unknown[]) => unknown) {
+    return functionComposer(
+      logic,
+      SelfInjectorFactory(),
+      this.actionInjectorList
+    );
+  }
+
+  public computed(logic: (...args: unknown[]) => unknown) {
+    return functionComposer(
+      logic,
+      this.selfInjector,
+      this.computedInjectorList
+    );
   }
 
   public constructor(config: LobxConfig) {
-    this.selfInjector = config.selfInjector || SelfInjector();
+    this.selfInjector = config.selfInjector || SelfInjectorFactory();
     this.idInjector = config.idInjector || IDInjectorFactory();
-    this.actionInjectorList = [this.selfInjector, this.idInjector];
-    this.computedInjectorList = [this.selfInjector, this.idInjector];
+    this.actionInjectorList = [this.idInjector];
+    this.computedInjectorList = [this.idInjector];
   }
 }
 
@@ -49,8 +54,8 @@ interface LobxContext {
 export function lobxFactory(props: LobxConfig = {}) {
   const lobx = new Lobx(props);
   return {
-    action: Lobx.buildInjectors(lobx.actionInjectorList),
-    computed: Lobx.buildInjectors(lobx.computedInjectorList),
+    action: lobx.action as IActionFactory,
+    computed: lobx.computed as IComputed,
     lobx
   };
 }

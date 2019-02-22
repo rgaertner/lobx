@@ -1,16 +1,17 @@
+import { ContextComposerFunction } from '../compose-injected-functions/function-composer';
+
 export declare type SelfContext<T = unknown> = { self: T };
 
 export type SelfInjectedAction<T = unknown> = (
-  ctx: SelfContext<T>,
   ...args: unknown[]
-) => unknown;
+) => ContextComposerFunction;
 export type SelfInjectorAction<T = unknown> = (
   ...args: unknown[]
 ) => SelfInjectedAction<T>;
 
-export function SelfInjector(): SelfInjectorAction {
+export function SelfInjectorFactory(): SelfInjectorAction {
   return (cb: SelfInjectedAction) => {
-    return function(ctx: {}, ...args: unknown[]) {
+    return function(...args: unknown[]) {
       return cb({ self: this }, ...args);
     };
   };
