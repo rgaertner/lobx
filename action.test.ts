@@ -45,13 +45,13 @@ describe('action ', () => {
   test('check global lobx context', () => {
     const lobxContext = lobxFactory();
     const fn = jest.fn();
-    const original = lobxContext.lobx.action;
-    lobxContext.lobx.action = (function(my: any, fn2: IActionFactory) {
-      fn(this, my, fn2);
-      return original.apply(this, [my, fn2]);
+    const original = lobxContext.action;
+    lobxContext.action = (function(my: any) {
+      fn(this, my);
+      return original.apply(this, [my]);
     } as unknown) as IActionFactory;
     const fn3 = () => {};
     lobxContext.action(fn3)();
-    expect(fn.mock.calls[0]).toEqual([lobxContext.lobx, lobxContext, fn3]);
+    expect(fn.mock.calls[0]).toEqual([lobxContext, fn3]);
   });
 });

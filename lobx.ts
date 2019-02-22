@@ -21,25 +21,16 @@ export class Lobx {
   public readonly actionInjectorList: Injector[];
   public readonly computedInjectorList: Injector[];
 
-  public action(logic: (...args: unknown[]) => unknown) {
-    return functionComposer(
-      logic,
-      SelfInjectorFactory(),
-      this.actionInjectorList
-    );
-  }
+  public actionHandler = (logic: (...args: unknown[]) => unknown) =>
+    functionComposer(logic, this.selfInjector, this.actionInjectorList);
 
-  public computed(logic: (...args: unknown[]) => unknown) {
-    return functionComposer(
-      logic,
-      this.selfInjector,
-      this.computedInjectorList
-    );
-  }
+  public computedHandler = (logic: (...args: unknown[]) => unknown) =>
+    functionComposer(logic, this.selfInjector, this.computedInjectorList);
 
   public constructor(config: LobxConfig) {
     this.selfInjector = config.selfInjector || SelfInjectorFactory();
     this.idInjector = config.idInjector || IDInjectorFactory();
+    debugger;
     this.actionInjectorList = [this.idInjector];
     this.computedInjectorList = [this.idInjector];
   }
@@ -51,11 +42,11 @@ interface LobxContext {
   lobx: Lobx;
 }
 
-export function lobxFactory(props: LobxConfig = {}) {
+export function lobxFactory(props: LobxConfig = {}): LobxContext {
   const lobx = new Lobx(props);
   return {
-    action: lobx.action as IActionFactory,
-    computed: lobx.computed as IComputed,
+    action: lobx.actionHandler as IActionFactory,
+    computed: lobx.computedHandler as IComputed,
     lobx
   };
 }
