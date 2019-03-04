@@ -1,5 +1,8 @@
 import { action, lobxFactory } from './lobx';
 import { IActionFactory } from './i-action';
+import { ActionContext, LobxContext } from './action-chain/action-chain';
+import { LobxRefInjectorFactory } from './id-injector/lobx-ref-injector';
+import { IDCountingGenerator } from './id-generator/id-counting-generator';
 
 describe('action ', () => {
   test('existence of action method', () => {
@@ -19,12 +22,11 @@ describe('action ', () => {
   class TestAction {
     public fn = jest.fn();
 
-    @action
-    public wurst(): void {
+    public wurst(): number {
       this.fn(this);
+      return 5;
     }
 
-    @action
     public brot(a1: number, a2: string) {
       this.fn(this, a1, a2);
     }
@@ -53,5 +55,21 @@ describe('action ', () => {
     const fn3 = () => {};
     lobxContext.action(fn3)();
     expect(fn.mock.calls[0]).toEqual([lobxContext, fn3]);
+  });
+  test('count invocation references', () => {
+    const lobxContext = lobxFactory({
+      lobxRefInjector: LobxRefInjectorFactory({
+        idGenerator: IDCountingGenerator(0)
+      })
+    });
+    debugger;
+    const test = new TestAction();
+    expect(lobxContext.action(test.wurst).apply(test)).toBe(5);
+    expect(typeof ((test as unknown) as LobxContext).__lobx).toBe('object');
+    expect(((test as unknown) as LobxContext).__lobx.id).toBe('1');
+    expect(typeof ((test.wurst as unknown) as LobxContext).__lobx).toBe(
+      'object'
+    );
+    expect(((test.wurst as unknown) as LobxContext).__lobx.id).toBe('2');
   });
 });
