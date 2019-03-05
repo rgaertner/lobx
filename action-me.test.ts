@@ -170,7 +170,7 @@ class TestDecorators {
   }
 }
 
-test.only('decorate', () => {
+test('decorate', () => {
   expect(myActionMock.mock.calls.length).toBe(1);
   expect((TestDecorators.prototype.toDecorate as any).myShell).toBe(true);
   const d = new TestDecorators();
