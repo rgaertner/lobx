@@ -9,7 +9,8 @@ import {
   hasGetterLobxId,
   getGetterLobxId,
   hasSetterLobxId,
-  getSetterLobxId
+  getSetterLobxId,
+  getDecoratedLobxId
 } from './lobxHelper';
 
 class TestAction {
@@ -49,8 +50,12 @@ test('get LobxRef from callback instance', () => {
   test.call();
   expect(hasWrappedLobxId(test.call)).toBe(true);
   expect(hasLobxId(test.call)).toBe(true);
-  expect(getWrappedLobxId(test.call).length).toBeGreaterThan(20);
+  const wrappedId = getWrappedLobxId(test.call);
+  expect(wrappedId.length).toBeGreaterThan(20);
   expect(getLobxId(test.call).length).toBeGreaterThan(20);
+  (test as any).methodName = 'call';
+  const decoratorId = getDecoratedLobxId(test);
+  expect(decoratorId === wrappedId).toBe(true);
 });
 
 test('get LobxRef from get field', () => {
