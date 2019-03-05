@@ -1,4 +1,4 @@
-import { lobxFactory } from './lobx';
+import { lobxFactory, computed } from './lobx';
 import { ActionContext, LobxRef } from './action-chain/action-chain';
 describe('computed ', () => {
   class TestAction {
@@ -8,6 +8,7 @@ describe('computed ', () => {
       return 2;
     }
 
+    @computed
     public get wurst(): number {
       this.fn(this, 'getter', 5);
       return 5;

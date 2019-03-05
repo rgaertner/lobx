@@ -75,8 +75,8 @@ export class Lobx {
       this.lobXRefInjector,
       ...this.computedInjectorList
     ];
-    this.actionHandler = this.createChain(this.actionChain);
-    this.computedHandler = this.createChain(this.computedChain);
+    this.actionHandler = this.createActionChain(this.actionChain);
+    this.computedHandler = this.createComputedChain(this.computedChain);
   }
 
   public createActionChain(chain: ChainFunction[]) {
