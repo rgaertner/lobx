@@ -19,17 +19,6 @@ describe('action ', () => {
     expect(action((x: number) => x + 5)(3)).toBe(8);
   });
 
-  function gurke(...args: unknown[]) {
-    console.log(this);
-    return function(
-      target: any,
-      propertyKey: string,
-      descriptor: PropertyDescriptor
-    ): string {
-      console.log('called', arguments);
-      return (target[propertyKey] as any).value.apply(target);
-    };
-  }
   class TestAction {
     public constructor() {
       this.origBrot = this.brot;
@@ -63,7 +52,6 @@ describe('action ', () => {
   test('passing arguments to bound method', () => {
     const test = new TestAction();
     test.brot(1, 'eins');
-    console.log(test.brot.toString());
     expect(typeof ((test.origBrot as unknown) as LobxRef).__lobx).toBe(
       'object'
     );
@@ -76,7 +64,6 @@ describe('action ', () => {
     const input = 'kaesebrot';
     const orig = test.kaese;
     const ret = orig(input);
-    console.log(test.brot.toString());
     expect(ret).toBe(input);
     expect((orig as any).__lobx.wrapped.__lobx.id.length).toBeGreaterThan(10);
     // expect((orig as any).__lobx.action.fn.__lobx.id.length).toBeGreaterThan(10);
