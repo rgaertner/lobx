@@ -1,10 +1,10 @@
 export declare type ActionFunction = (...args: unknown[]) => unknown;
 
-export declare type LobxContext = { __lobx?: { readonly id: string } };
+export declare type LobxRef = { __lobx?: { readonly id: string } };
 export interface ActionContext {
-  readonly self: unknown & LobxContext;
+  readonly self: unknown & LobxRef;
   readonly action: {
-    readonly fn: ActionFunction & LobxContext;
+    readonly fn: ActionFunction & LobxRef;
     readonly args?: unknown[];
   };
   id?: string;
@@ -24,7 +24,6 @@ export class ActiveChain {
   }
 
   public next(ac: ActionContext): unknown {
-    debugger;
     const nextIndex = this.idx++;
     if (nextIndex >= this.chain.length) {
       return ac.action.fn.apply(ac.self, ac.action.args);

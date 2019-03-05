@@ -19,7 +19,6 @@ function trace(
 function action(cb: ActionFunction): ActionFunction {
   const doNotMutate = [doFunkyStuff, callActionFunction];
   return function(...args) {
-    trace(this, this, 'action', 'beforeRunChain', ...args);
     const chain = new ActiveChain(doNotMutate);
     const ret = chain.next({
       self: this,
@@ -28,7 +27,6 @@ function action(cb: ActionFunction): ActionFunction {
         args: args
       }
     });
-    trace(this, this, 'action', 'afterRunChain', ...args, ret);
     return ret;
   };
 }
@@ -58,52 +56,49 @@ describe('action chain checks', () => {
     // const ret = realAction(1,2);
     const ret = myAction.apply(fn, [1, 2]);
     expect(ret).toBe(3);
-    // expect(fn.mock.calls[0]).toEqual([fn, 'action', 'beforeRunChain', 1, 2]);
-    // expect(fn.mock.calls[1]).toEqual([global, 'doFunkyStuffBefore']);
-    // expect(fn.mock.calls[2]).toEqual([global, 'callActionFunctionBefore']);
-    // expect(fn.mock.calls[3]).toEqual([fn, 'realAction', 1, 2]);
-    // expect(fn.mock.calls[4]).toEqual([global, 'callActionFunctionAfter', 3]);
-    // expect(fn.mock.calls[5]).toEqual([global, 'doFunkyStuffAfter', 3]);
-    // expect(fn.mock.calls[6]).toEqual([fn, 'action', 'afterRunChain', 1, 2, 3]);
+    debugger;
+    expect(fn.mock.calls[0]).toEqual([undefined, 'doFunkyStuffBefore']);
+    expect(fn.mock.calls[1]).toEqual([undefined, 'callActionFunctionBefore']);
+    expect(fn.mock.calls[2]).toEqual([fn, 'realAction', 1, 2]);
+    expect(fn.mock.calls[3]).toEqual([undefined, 'callActionFunctionAfter', 3]);
+    expect(fn.mock.calls[4]).toEqual([undefined, 'doFunkyStuffAfter', 3]);
   });
 });
 
-// test('do not mutate the action chain', () => {
-//   const fn = jest.fn();
-//   function realAction(a: number, b: number): number {
-//     trace(this, this, 'realAction', a, b);
-//     return a + b;
-//   }
-//   const myAction = action(realAction);
-//   // this call is for the non mutated actionChain testing
-//   expect(myAction.apply('hoho', [1, 2])).toBe(3);
-//   const ret = myAction.apply(fn, [1, 2]);
-//   expect(ret).toBe(3);
-//   expect(fn.mock.calls[0]).toEqual([fn, 'action', 'beforeRunChain', 1, 2]);
-//   expect(fn.mock.calls[1]).toEqual([global, 'doFunkyStuffBefore']);
-//   expect(fn.mock.calls[2]).toEqual([global, 'callActionFunctionBefore']);
-//   expect(fn.mock.calls[3]).toEqual([fn, 'realAction', 1, 2]);
-//   expect(fn.mock.calls[4]).toEqual([global, 'callActionFunctionAfter', 3]);
-//   expect(fn.mock.calls[5]).toEqual([global, 'doFunkyStuffAfter', 3]);
-//   expect(fn.mock.calls[6]).toEqual([fn, 'action', 'afterRunChain', 1, 2, 3]);
-// });
+test('do not mutate the action chain', () => {
+  const fn = jest.fn();
+  function realAction(a: number, b: number): number {
+    trace(this, this, 'realAction', a, b);
+    return a + b;
+  }
+  const myAction = action(realAction);
+  // this call is for the non mutated actionChain testing
+  expect(myAction.apply('hoho', [1, 2])).toBe(3);
+  const ret = myAction.apply(fn, [1, 2]);
+  expect(ret).toBe(3);
+  expect(fn.mock.calls[0]).toEqual([undefined, 'doFunkyStuffBefore']);
+  expect(fn.mock.calls[1]).toEqual([undefined, 'callActionFunctionBefore']);
+  expect(fn.mock.calls[2]).toEqual([fn, 'realAction', 1, 2]);
+  expect(fn.mock.calls[3]).toEqual([undefined, 'callActionFunctionAfter', 3]);
+  expect(fn.mock.calls[4]).toEqual([undefined, 'doFunkyStuffAfter', 3]);
+});
 
-// test('is next called', () => {
-//   const actionChain = new ActiveChain([]);
-//   actionChain.next = jest.fn();
-//   const ctx: ActionContext = {
-//     self: undefined,
-//     action: {
-//       fn: undefined
-//     }
-//   };
-//   doFunkyStuff({ ...ctx }, actionChain);
-//   expect(actionChain.next).toBeCalled();
-//   expect((actionChain.next as jest.Mock).mock.calls[0][0]).toEqual({
-//     ...ctx,
-//     uhu: 4
-//   });
-// });
+test('is next called', () => {
+  const actionChain = new ActiveChain([]);
+  actionChain.next = jest.fn();
+  const ctx: ActionContext = {
+    self: undefined,
+    action: {
+      fn: undefined
+    }
+  };
+  doFunkyStuff({ ...ctx }, actionChain);
+  expect(actionChain.next).toBeCalled();
+  expect((actionChain.next as jest.Mock).mock.calls[0][0]).toEqual({
+    ...ctx,
+    uhu: 4
+  });
+});
 function emptyAction(cb: ActionFunction) {
   return function(...args: unknown[]) {
     const functions: ChainFunction[] = [];

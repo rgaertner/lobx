@@ -17,7 +17,6 @@ export function IDInjectorFactory(
     if (!ac.hasOwnProperty('id')) {
       ac.id = props.idGenerator();
     }
-    debugger;
     const ret = chain.next(ac);
     return ret;
   };
