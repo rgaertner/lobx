@@ -32,6 +32,12 @@ export function hasDecoratedLobxId(instance: any): boolean {
   return false;
 }
 
+export function getDecoratedLobxId(instance: any): string {
+  if (hasDecoratedLobxId(instance)) {
+    return getGetSetLobxId(instance, instance.methodName, 'value');
+  }
+  return '';
+}
 export function hasWrappedLobxId(instance: any) {
   if (instance.hasOwnProperty('__lobx')) {
     if (instance.__lobx.hasOwnProperty('wrapped')) {
