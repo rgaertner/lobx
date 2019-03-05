@@ -57,12 +57,9 @@ describe('action ', () => {
       typeof args[2].value === 'function'
     ) {
       args[2].value = myShell(args[2].value);
-      console.log('decorate', args);
       return args[2];
     }
-    console.log('normal', args);
     return function(my: unknown[]) {
-      console.log('called', args);
       return args[0].apply(this, my);
     };
   }
@@ -77,7 +74,6 @@ describe('action ', () => {
   }
 
   test('decorate', () => {
-    debugger;
     expect(myActionMock.mock.calls.length).toBe(1);
     expect((TestDecorators.prototype.toDecorate as any).myShell).toBe(true);
     const d = new TestDecorators();
