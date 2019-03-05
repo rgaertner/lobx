@@ -72,7 +72,6 @@ test('simple action', () => {
     return a + b;
   }
   const myAction = action(realAction);
-  debugger;
   const ret = myAction.apply(fn, [1, 2]);
   expect(ret).toBe(3);
   // expect(fn.mock.calls[0]).toEqual([fn, 'action', 'beforeRunChain', 1, 2]);
@@ -172,7 +171,6 @@ class TestDecorators {
 }
 
 test.only('decorate', () => {
-  debugger;
   expect(myActionMock.mock.calls.length).toBe(1);
   expect((TestDecorators.prototype.toDecorate as any).myShell).toBe(true);
   const d = new TestDecorators();

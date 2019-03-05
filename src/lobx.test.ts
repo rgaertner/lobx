@@ -1,4 +1,4 @@
-import { action, actiondec } from './lobx';
+import { action } from './lobx';
 import { ActionFunction } from './action-chain/action-chain';
 
 describe('action ', () => {
@@ -11,7 +11,6 @@ describe('action ', () => {
       return 5;
     }
 
-    @actiondec
     public brot(a1: number, a2: string) {
       this.fndec(this, a1, a2);
       return 6;

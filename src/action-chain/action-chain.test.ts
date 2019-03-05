@@ -56,7 +56,6 @@ describe('action chain checks', () => {
     // const ret = realAction(1,2);
     const ret = myAction.apply(fn, [1, 2]);
     expect(ret).toBe(3);
-    debugger;
     expect(fn.mock.calls[0]).toEqual([undefined, 'doFunkyStuffBefore']);
     expect(fn.mock.calls[1]).toEqual([undefined, 'callActionFunctionBefore']);
     expect(fn.mock.calls[2]).toEqual([fn, 'realAction', 1, 2]);

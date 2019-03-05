@@ -1,4 +1,4 @@
-import { action, actiondec, lobxFactory, LOBX } from './lobx';
+import { action, lobxFactory, LOBX } from './lobx';
 import { IActionFactory } from './i-action';
 import { LobxRefInjectorFactory } from './id-injector/lobx-ref-injector';
 import { IDCountingGenerator } from './id-generator/id-counting-generator';
@@ -44,12 +44,11 @@ describe('action ', () => {
 
     public origBrot(a1: number, a2: string) {}
 
-    @actiondec
     public brot = (a1: number, a2: string) => {
       this.fn(this, a1, a2);
       return 6;
     };
-    @gurke
+    @action
     public kaese(test: string) {
       return test;
     }
@@ -72,13 +71,12 @@ describe('action ', () => {
     expect(test.fn.mock.calls[0]).toEqual([test, 1, 'eins']);
   });
 
-  test.only('test kaese', () => {
+  test('test kaese', () => {
     const test = new TestAction();
     const input = 'kaesebrot';
     const orig = test.kaese;
     const ret = orig(input);
     console.log(test.brot.toString());
-    debugger;
     expect(ret).toBe(input);
     expect((orig as any).__lobx.wrapped.__lobx.id.length).toBeGreaterThan(10);
     // expect((orig as any).__lobx.action.fn.__lobx.id.length).toBeGreaterThan(10);

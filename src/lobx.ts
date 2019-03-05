@@ -25,25 +25,31 @@ interface ActionDecorator {
   ): void;
 }
 
-function actionDecorator(...args: any[]): unknown {
-  if (
-    args.length == 3 &&
-    typeof args[0] === 'object' &&
-    args[0].hasOwnProperty('constructor') &&
-    typeof args[0].constructor.name === 'string' &&
-    typeof args[1] === 'string' &&
-    typeof args[2] === 'object' &&
-    typeof args[2].value === 'function'
-  ) {
-    args[2].value = LOBX.action(args[2].value);
-    return args[2];
-  }
-  return function(my: unknown[]) {
-    return args[0].apply(this, my);
+function createTopChain(
+  cb: ActionFunction,
+  chain: ChainFunction[]
+): ActionFunction {
+  const topChain = function(...args: any[]) {
+    const aChain = new ActiveChain(chain);
+    const ret = aChain.next({
+      self: this,
+      action: {
+        fn: cb,
+        args: args
+      }
+    });
+    debugger;
+    if (!(topChain as any).hasOwnProperty('__lobx')) {
+      (topChain as any).__lobx = {
+        wrapped: cb
+      };
+      debugger;
+    }
+    return ret;
   };
+  return topChain;
 }
 
-export const actiondec = actionDecorator as ActionDecorator;
 export class Lobx {
   public readonly idInjector: ChainFunction;
   public readonly lobXRefInjector: ChainFunction;
@@ -73,26 +79,43 @@ export class Lobx {
     this.computedHandler = this.createChain(this.computedChain);
   }
 
-  public createChain(chain: ChainFunction[]) {
-    return function(cb: ActionFunction): ActionFunction {
-      const topChain = function(...args: unknown[]) {
-        const aChain = new ActiveChain(chain);
-        const ret = aChain.next({
-          self: this,
-          action: {
-            fn: cb,
-            args: args
-          }
-        });
+  public createActionChain(chain: ChainFunction[]) {
+    return function(...args: any[]): ActionFunction {
+      if (
+        args.length == 3 &&
+        typeof args[0] === 'object' &&
+        args[0].hasOwnProperty('constructor') &&
+        typeof args[0].constructor.name === 'string' &&
+        typeof args[1] === 'string' &&
+        typeof args[2] === 'object' &&
+        typeof args[2].value === 'function'
+      ) {
+        const topChain = createTopChain(args[2].value, chain);
+        args[2].value = topChain;
+        return args[2];
+      }
+      return createTopChain(args[0], chain);
+    };
+  }
+
+  public createComputedChain(chain: ChainFunction[]) {
+    return function(...args: any[]): ActionFunction {
+      if (
+        args.length == 3 &&
+        typeof args[0] === 'object' &&
+        args[0].hasOwnProperty('constructor') &&
+        typeof args[0].constructor.name === 'string' &&
+        typeof args[1] === 'string' &&
+        typeof args[2] === 'object' &&
+        typeof args[2].value === 'function'
+      ) {
         debugger;
-        if (!(topChain as any).hasOwnProperty('__lobx')) {
-          (topChain as any).__lobx = {
-            wrapped: cb
-          };
-        }
-        return ret;
-      };
-      return topChain;
+        const descriptor = args[2];
+        const topChain = createTopChain(args[2].value, chain);
+        descriptor.value = topChain;
+        return descriptor;
+      }
+      return createTopChain(args[0], chain);
     };
   }
 
