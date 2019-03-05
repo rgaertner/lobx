@@ -1,9 +1,17 @@
-import { lobxFactory, computed } from './lobx';
-import { ActionContext, LobxRef } from './action-chain/action-chain';
+import { computed } from './lobx';
+import {
+  hasSetterLobxId,
+  getSetterLobxId,
+  hasGetterLobxId,
+  getGetterLobxId,
+  hasInstanceLobxId,
+  getInstanceLobxId
+} from './utils/lobxHelper';
 describe('computed ', () => {
   class TestAction {
     public fn = jest.fn();
 
+    @computed
     public get testCallToGetter() {
       return 2;
     }
@@ -26,25 +34,28 @@ describe('computed ', () => {
   });
 
   test('count invocation references', () => {
-    const lobxContext = lobxFactory();
     const test = new TestAction();
-    // expect(lobxContext.computed(test.wurst).toBe(5);
-    // expect(test.testCallToGetter()).toBe(2);
-    expect(typeof ((test.testCallToGetter as unknown) as LobxRef)).toBe(
-      'object'
-    );
-    expect(typeof ((test as unknown) as ActionContext).self.__lobx).toBe(
-      'object'
-    );
-    expect(
-      ((test.testCallToGetter as unknown) as ActionContext).self.__lobx.id
-    ).toBe(1);
-    expect(lobxContext).toEqual({ id: 'compute' });
+    expect(test.wurst).toBe(5);
+    expect(test.testCallToGetter).toBe(2);
+    expect(hasInstanceLobxId(test)).toBe(true);
+    expect(getInstanceLobxId(test).length).toBeGreaterThan(15);
+    (test as any).getterName = 'wurst';
+    expect(hasGetterLobxId(test)).toBe(true);
+    const wurstId = getGetterLobxId(test);
+    expect(wurstId.length).toBeGreaterThan(20);
+    (test as any).getterName = 'testCallToGetter';
+    expect(hasGetterLobxId(test)).toBe(true);
+    const testCallToGetterId = getGetterLobxId(test);
+    expect(testCallToGetterId.length).toBeGreaterThan(20);
+    expect(wurstId != testCallToGetterId).toBe(true);
   });
 
   test('passing arguments to bound method', () => {
     const test = new TestAction();
     test.wurst = 4;
+    (test as any).setterName = 'wurst';
+    expect(hasSetterLobxId(test)).toBe(true);
+    expect(getSetterLobxId(test).length).toBeGreaterThan(15);
     expect(test.fn.mock.calls[0]).toEqual([test, 'setter', 4]);
   });
 });
