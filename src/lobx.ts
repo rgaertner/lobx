@@ -38,12 +38,10 @@ function createTopChain(
         args: args
       }
     });
-    debugger;
     if (!(topChain as any).hasOwnProperty('__lobx')) {
       (topChain as any).__lobx = {
         wrapped: cb
       };
-      debugger;
     }
     return ret;
   };
@@ -58,7 +56,8 @@ export class Lobx {
   public readonly computedInjectorList: ChainFunction[];
 
   public readonly actionChain: ChainFunction[];
-  public readonly computedChain: ChainFunction[];
+  public readonly computedGetChain: ChainFunction[];
+  public readonly computedSetChain: ChainFunction[];
 
   public constructor(config: LobxConfig) {
     this.idInjector = config.idInjector || IDInjectorFactory();
@@ -70,13 +69,21 @@ export class Lobx {
       this.lobXRefInjector,
       ...this.actionInjectorList
     ];
-    this.computedChain = [
+    this.computedGetChain = [
+      this.idInjector,
+      this.lobXRefInjector,
+      ...this.computedInjectorList
+    ];
+    this.computedSetChain = [
       this.idInjector,
       this.lobXRefInjector,
       ...this.computedInjectorList
     ];
     this.actionHandler = this.createActionChain(this.actionChain);
-    this.computedHandler = this.createComputedChain(this.computedChain);
+    this.computedHandler = this.createComputedChain(
+      this.computedGetChain,
+      this.computedSetChain
+    );
   }
 
   public createActionChain(chain: ChainFunction[]) {
@@ -98,24 +105,32 @@ export class Lobx {
     };
   }
 
-  public createComputedChain(chain: ChainFunction[]) {
+  public createComputedChain(
+    getChain: ChainFunction[],
+    setChain: ChainFunction[]
+  ) {
     return function(...args: any[]): ActionFunction {
+      const descriptor = args[2];
       if (
         args.length == 3 &&
         typeof args[0] === 'object' &&
         args[0].hasOwnProperty('constructor') &&
         typeof args[0].constructor.name === 'string' &&
         typeof args[1] === 'string' &&
-        typeof args[2] === 'object' &&
-        typeof args[2].value === 'function'
+        typeof descriptor === 'object' &&
+        (typeof descriptor.get === 'function' ||
+          typeof descriptor.set === 'function')
       ) {
-        debugger;
-        const descriptor = args[2];
-        const topChain = createTopChain(args[2].value, chain);
-        descriptor.value = topChain;
+        if (descriptor.get) {
+          descriptor.get = createTopChain(descriptor.get, getChain);
+        }
+        if (descriptor.set) {
+          descriptor.set = createTopChain(descriptor.set, setChain);
+        }
         return descriptor;
       }
-      return createTopChain(args[0], chain);
+
+      return createTopChain(args[0], getChain);
     };
   }
 
