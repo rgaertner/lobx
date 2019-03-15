@@ -149,7 +149,7 @@ export interface LobxMember {
   get: ActionFunction;
   set: ActionFunction;
 }
-export declare type LobxReflect = LobxId & LobxProperty;
+export type LobxReflect = LobxId & LobxProperty;
 
 export interface LobxProperty {
   property?: (prop: string) => LobxId & LobxMember;
@@ -161,17 +161,6 @@ export interface myObject {
     set?: TypedPropertyDescriptor<any> & LobxRef;
     get?: TypedPropertyDescriptor<any> & LobxRef;
   };
-}
-
-export interface myProperty {
-  [key: string]: {
-    ['set']?: LobxRef;
-    ['get']?: LobxRef;
-  };
-}
-
-export interface myInstance {
-  [key: string]: { value?: LobxRef };
 }
 
 export interface result<T> {
@@ -267,7 +256,7 @@ export function createPropertyLobxId(props: {
   return { error: `Cannot find property ${property}` };
 }
 
-export function reflectForEach(instance: any) {
+export function reflect(instance: any) {
   const object = Object.getOwnPropertyDescriptors(
     Object.getPrototypeOf(instance)
   );
@@ -312,79 +301,4 @@ export function reflectForEach(instance: any) {
     functions: functionsMapper(functions),
     properties: propertiesMapper(properties)
   };
-}
-
-export function reflect(instance: any): LobxId & LobxProperty {
-  const object = Object.getOwnPropertyDescriptors(
-    Object.getPrototypeOf(instance)
-  );
-  const instanceId = getInstanceLobxId(instance);
-  const result = {
-    id: '',
-    property: {},
-    type: LobxType.None
-  };
-  if (instanceId) {
-    Object.assign(result, {
-      id: instanceId,
-      type:
-        instanceId == typeof 'function' ? LobxType.Function : LobxType.Instance
-    });
-  }
-  const functions = Array.from(Object.keys(object)).filter(property => {
-    return (
-      typeof instance[property] === 'function' &&
-      instance[property].__lobx &&
-      typeof object[property].value === 'function' &&
-      object[property].value.__lobx
-    );
-  });
-  const setter = Array.from(Object.keys(object)).filter(property => {
-    return (
-      typeof object[property].set === 'function' &&
-      object[property].set.hasOwnProperty('__lobx')
-    );
-  });
-  const getter = Array.from(Object.keys(object)).filter(property => {
-    return (
-      typeof object[property].get === 'function' &&
-      object[property].get.hasOwnProperty('__lobx')
-    );
-  });
-
-  const functionIds = functions.map(f => {
-    return {
-      name: f,
-      id: getWrappedLobxId(object[f].value),
-      type: LobxType.Function
-    };
-  });
-
-  const getterIds = getter.map(g => {
-    return {
-      g: {
-        id: getGetSetLobxId(instance, g, 'get'),
-        type: LobxType.Property,
-        get: object[g].get
-      }
-    };
-  });
-  const setterIds = setter.map(s => {
-    return {
-      s: {
-        id: getGetSetLobxId(instance, s, 'set'),
-        type: LobxType.Property,
-        set: object[s].set
-      }
-    };
-  });
-  const propsFunc = (name: string) => {
-    return {
-      id: '',
-      type: LobxType.None,
-      get: () => 'nothing',
-      set: () => 'nothing'
-    };
-  };
-  return { ...result, property: propsFunc };
 }

@@ -17,7 +17,7 @@ import {
   LobxType,
   createPropertyLobxId,
   MyLobxPropertyIntrospection,
-  reflectForEach
+  reflect
 } from './lobxHelper';
 import { LobxRef } from '../action-chain/action-chain';
 
@@ -89,7 +89,7 @@ test('get LobxRef from set field', () => {
   expect(setterId === instanceId).toBe(false);
 });
 
-test.only('reflect function from lobx instance', () => {
+test('reflect function from lobx instance', () => {
   const test = new TestAction();
   test.call();
   const func: result<MyLobxFunctionIntrospection> = createFunctionLobxId({
@@ -102,7 +102,7 @@ test.only('reflect function from lobx instance', () => {
   expect(func.ok.type).toBe(LobxType.Function);
 });
 
-test.only('reflect get property from lobx instance', () => {
+test('reflect get property from lobx instance', () => {
   const test = new TestAction();
   test.wurst;
   const prop: result<MyLobxPropertyIntrospection> = createPropertyLobxId({
@@ -115,7 +115,7 @@ test.only('reflect get property from lobx instance', () => {
   expect(prop.ok.type).toBe(LobxType.Property);
 });
 
-test.only('reflect set property from lobx instance', () => {
+test('reflect set property from lobx instance', () => {
   const test = new TestAction();
   test.wurst = 3;
   const prop: result<MyLobxPropertyIntrospection> = createPropertyLobxId({
@@ -129,7 +129,7 @@ test.only('reflect set property from lobx instance', () => {
   expect(prop.ok.type).toBe(LobxType.Property);
 });
 
-test.only('reflect set & get property from lobx instance', () => {
+test('reflect set & get property from lobx instance', () => {
   const test = new TestAction();
   const prop: result<MyLobxPropertyIntrospection> = createPropertyLobxId({
     instance: test,
@@ -171,13 +171,13 @@ test('reflect set & get from two lobx instances', () => {
   expect(prop2.ok.type).toBe(prop.ok.type);
 });
 
-test.only('reflect instance', () => {
+test('reflect instance', () => {
   const test = new TestAction();
   const test2 = new TestAction();
   test.wurst;
   test2.wurst;
-  const reflectedTest = reflectForEach(test);
-  const reflectedTest2 = reflectForEach(test2);
+  const reflectedTest = reflect(test);
+  const reflectedTest2 = reflect(test2);
   expect(reflectedTest.id === reflectedTest2.id).toBe(false);
   expect(reflectedTest.properties('wurst').set.id.length).toBeGreaterThan(15);
   expect(reflectedTest.properties('wurst').get.id.length).toBeGreaterThan(15);
