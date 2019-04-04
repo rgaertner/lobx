@@ -1,5 +1,5 @@
 import { IDGeneratorAction, IDGenerator } from '../id-generator/id-generator';
-import uuid = require('uuid');
+import { v4 as uuid_v4 } from 'uuid';
 import {
   ActionContext,
   ActiveChain,
@@ -11,7 +11,7 @@ export interface IDInjectorProps {
 }
 
 export function LobxRefInjectorFactory(
-  props: IDInjectorProps = { idGenerator: uuid.v4 }
+  props: IDInjectorProps = { idGenerator: uuid_v4 }
 ): ChainFunction {
   return (ac: ActionContext, chain: ActiveChain): unknown => {
     if (ac.self && !ac.self.hasOwnProperty('__lobx')) {

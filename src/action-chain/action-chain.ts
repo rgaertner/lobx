@@ -2,7 +2,7 @@ export declare type ActionFunction = (...args: unknown[]) => unknown;
 
 export declare type LobxRef = { __lobx?: { readonly id: string } };
 export interface ActionContext {
-  readonly self: unknown & LobxRef;
+  readonly self: typeof globalThis & LobxRef;
   readonly action: {
     readonly fn: ActionFunction & LobxRef;
     readonly args?: unknown[];

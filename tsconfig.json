@@ -4,14 +4,14 @@
     "module": "commonjs",
     "outDir": "lib",
     "lib": ["dom", "esnext"],
-    "noImplicitAny": true,
     "pretty": true,
     "sourceMap": true,
     "declaration": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "stripInternal": true,
-    "plugins": [{ "name": "typescript-tslint-plugin" }]
+    "plugins": [{ "name": "typescript-tslint-plugin" }],
+    "incremental": true,
   },
   "include": ["./src/**/*.ts", "./typings/**/*.d.ts"],
   "exclude": ["./src/xest", "./src/**/*.xest.ts"]
